@@ -1,0 +1,198 @@
+services:
+  spring-form:
+    build: ./spring-form
+    ports: ["127.0.0.1:8101:8080"]
+
+  django-form:
+    build: ./django-form
+    ports: ["127.0.0.1:8102:8000"]
+
+  express-form:
+    build: ./express-form
+    ports: ["127.0.0.1:8103:3000"]
+
+  dotnet-form:
+    build: ./dotnet-form
+    ports: ["127.0.0.1:8104:8080"]
+
+  react-json-cookie:
+    build: ./react-json-cookie
+    ports: ["127.0.0.1:8201:3000"]
+
+  fastapi-dynamic:
+    build: ./fastapi-dynamic
+    ports: ["127.0.0.1:8202:8000"]
+
+  go-multistep:
+    build: ./go-multistep
+    ports: ["127.0.0.1:8203:8080"]
+
+  delayed-render:
+    build: ./browser-edge-cases
+    environment: ["SCENARIO=delayed-render"]
+    ports: ["127.0.0.1:8301:3000"]
+
+  nonstandard-fields:
+    build: ./browser-edge-cases
+    environment: ["SCENARIO=nonstandard-fields"]
+    ports: ["127.0.0.1:8302:3000"]
+
+  hash-spa:
+    build: ./browser-edge-cases
+    environment: ["SCENARIO=hash-spa"]
+    ports: ["127.0.0.1:8303:3000"]
+
+  enter-submit:
+    build: ./browser-edge-cases
+    environment: ["SCENARIO=enter-submit"]
+    ports: ["127.0.0.1:8304:3000"]
+
+  iframe-login:
+    build: ./browser-edge-cases
+    environment: ["SCENARIO=iframe-login"]
+    ports: ["127.0.0.1:8305:3000"]
+
+  otp-challenge:
+    build: ./browser-edge-cases
+    environment: ["SCENARIO=otp-challenge"]
+    ports: ["127.0.0.1:8306:3000"]
+
+  http-basic:
+    build: ./protocol-auth
+    environment: ["SCENARIO=basic"]
+    ports: ["127.0.0.1:8401:3000"]
+
+  http-digest:
+    build: ./protocol-auth
+    environment: ["SCENARIO=digest"]
+    ports: ["127.0.0.1:8402:3000"]
+
+  bearer-token:
+    build: ./protocol-auth
+    environment: ["SCENARIO=bearer"]
+    ports: ["127.0.0.1:8403:3000"]
+
+  api-key-header:
+    build: ./protocol-auth
+    environment: ["SCENARIO=api-key"]
+    ports: ["127.0.0.1:8404:3000"]
+
+  multi-header:
+    build: ./protocol-auth
+    environment: ["SCENARIO=multi-header"]
+    ports: ["127.0.0.1:8405:3000"]
+
+  basic-then-form:
+    build: ./protocol-auth
+    environment: ["SCENARIO=basic-form"]
+    ports: ["127.0.0.1:8406:3000"]
+
+  modal-login:
+    build: ./client-flows
+    environment: ["SCENARIO=modal-login"]
+    ports: ["127.0.0.1:8501:3000"]
+
+  consent-checkbox:
+    build: ./client-flows
+    environment: ["SCENARIO=consent-checkbox"]
+    ports: ["127.0.0.1:8502:3000"]
+
+  localstorage-jwt:
+    build: ./client-flows
+    environment: ["SCENARIO=localstorage-jwt"]
+    ports: ["127.0.0.1:8503:3000"]
+
+  sso-app:
+    build: ./client-flows
+    environment:
+      - SCENARIO=sso-app
+      - PORT=8504
+      - IDP_URL=http://sso-idp.localhost:8505
+      - CALLBACK_URL=http://sso-app.localhost:8504/callback
+    ports: ["127.0.0.1:8504:8504"]
+    networks:
+      default:
+        aliases: ["sso-app.localhost"]
+
+  sso-idp:
+    build: ./client-flows
+    environment:
+      - SCENARIO=sso-idp
+      - PORT=8505
+    ports: ["127.0.0.1:8505:8505"]
+    networks:
+      default:
+        aliases: ["sso-idp.localhost"]
+
+  cross-domain-app:
+    build: ./client-flows
+    environment:
+      - SCENARIO=cross-domain-app
+      - PORT=8506
+      - IDP_URL=http://identity.localhost:8507
+      - CALLBACK_URL=http://customer-app.localhost:8506/callback
+    ports: ["127.0.0.1:8506:8506"]
+    networks:
+      default:
+        aliases: ["customer-app.localhost"]
+
+  cross-domain-idp:
+    build: ./client-flows
+    environment:
+      - SCENARIO=cross-domain-idp
+      - PORT=8507
+    ports: ["127.0.0.1:8507:8507"]
+    networks:
+      default:
+        aliases: ["identity.localhost"]
+
+  ntlm-auth:
+    build: ./ntlm-lab
+    ports: ["127.0.0.1:8601:8080"]
+    networks:
+      default:
+        aliases: ["ntlm-auth.zap.test"]
+
+  kerberos-kdc:
+    profiles: ["kerberos"]
+    build: ./kerberos-lab/kdc
+    volumes: ["./kerberos-lab/generated:/shared"]
+    networks:
+      default:
+        aliases: ["kerberos-kdc.zap.test"]
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /shared/http.keytab && test -s /shared/zapuser.keytab && test -s /shared/krb5.conf"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  kerberos-web:
+    profiles: ["kerberos"]
+    build: ./kerberos-lab/web
+    container_name: kerberos-web
+    hostname: kerberos-web
+    domainname: zap.test
+    depends_on:
+      kerberos-kdc:
+        condition: service_healthy
+    volumes: ["./kerberos-lab/generated:/shared:ro"]
+    ports: ["127.0.0.1:8602:8080"]
+    networks:
+      default:
+        aliases: ["kerberos-web.zap.test"]
+
+  kerberos-client-check:
+    profiles: ["kerberos"]
+    build:
+      context: ./kerberos-lab
+      dockerfile: client.Dockerfile
+    depends_on:
+      kerberos-web:
+        condition: service_started
+    volumes: ["./kerberos-lab/generated:/shared:ro"]
+    networks:
+      - default
+
+networks:
+  default:
+    name: zap-auth-testbed

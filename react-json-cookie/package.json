@@ -1,0 +1,15 @@
+{
+  "name": "react-json-cookie",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {"build": "vite build"},
+  "dependencies": {
+    "express": "5.1.0",
+    "express-session": "1.18.2"
+  },
+  "devDependencies": {
+    "vite": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  }
+}

@@ -1,0 +1,18 @@
+SECRET_KEY='zap-testbed-only'
+DEBUG=True
+ALLOWED_HOSTS=['*']
+ROOT_URLCONF='app.urls'
+MIDDLEWARE=[
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+]
+INSTALLED_APPS=['django.contrib.contenttypes','django.contrib.sessions']
+TEMPLATES=[{
+    'BACKEND':'django.template.backends.django.DjangoTemplates',
+    'DIRS':['/app/templates'],
+    'APP_DIRS':True,
+    'OPTIONS':{'context_processors':['django.template.context_processors.request']}
+}]
+SESSION_ENGINE='django.contrib.sessions.backends.signed_cookies'
