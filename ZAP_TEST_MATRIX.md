@@ -1,4 +1,4 @@
-# ZAP authentication test matrix — v3
+# ZAP authentication test matrix — v4
 
 ## Shared credentials
 
@@ -43,7 +43,7 @@ Kerberos realm = ZAP.TEST
 | 8504 | SSO app | `http://sso-app.localhost:8504/login` | `http://sso-app.localhost:8504/api/whoami` |
 | 8506 | cross-host SSO app | `http://customer-app.localhost:8506/login` | `http://customer-app.localhost:8506/api/whoami` |
 | 8601 | NTLM | `http://127.0.0.1:8601/` | `/api/whoami` |
-| 8602 | Kerberos/SPNEGO | `http://kerberos-web.zap.test:8080/` on Docker network; host port `8602` | `/api/whoami` |
+| 8602 | Kerberos/SPNEGO | Docker: `http://kerberos-web.zap.test:8080/`; host: `http://kerberos-web.zap.test:8602/` | `/api/whoami` |
 
 ## Mechanism matrix to fill in
 
@@ -142,3 +142,29 @@ ntlm-auth.zap.test:8080
 kerberos-kdc.zap.test:88
 kerberos-web.zap.test:8080
 ```
+
+## Kerberos generated inputs for ZAP
+
+After `docker compose --profile kerberos up --build -d`:
+
+```text
+Docker/container ZAP:
+  config    = kerberos-generated/krb5-docker.conf
+  keytab    = kerberos-generated/zapuser.keytab
+  principal = zapuser@ZAP.TEST
+  target    = http://kerberos-web.zap.test:8080
+
+Host ZAP/backend:
+  config    = kerberos-generated/krb5-host.conf
+  keytab    = kerberos-generated/zapuser.keytab
+  principal = zapuser@ZAP.TEST
+  target    = http://kerberos-web.zap.test:8602
+```
+
+For host mode add:
+
+```text
+127.0.0.1 kerberos-web.zap.test
+```
+
+`http.keytab` is deliberately the server keytab and must not be supplied as the client keytab.

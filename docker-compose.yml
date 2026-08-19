@@ -156,12 +156,16 @@ services:
   kerberos-kdc:
     profiles: ["kerberos"]
     build: ./kerberos-lab/kdc
-    volumes: ["./kerberos-lab/generated:/shared"]
+    volumes:
+      - ./kerberos-generated:/shared
+    ports:
+      - "127.0.0.1:10088:88/tcp"
+      - "127.0.0.1:10088:88/udp"
     networks:
       default:
         aliases: ["kerberos-kdc.zap.test"]
     healthcheck:
-      test: ["CMD-SHELL", "test -s /shared/http.keytab && test -s /shared/zapuser.keytab && test -s /shared/krb5.conf"]
+      test: ["CMD-SHELL", "test -s /shared/http.keytab && test -s /shared/zapuser.keytab && test -s /shared/krb5-host.conf"]
       interval: 2s
       timeout: 2s
       retries: 30
@@ -169,13 +173,10 @@ services:
   kerberos-web:
     profiles: ["kerberos"]
     build: ./kerberos-lab/web
-    container_name: kerberos-web
-    hostname: kerberos-web
-    domainname: zap.test
     depends_on:
       kerberos-kdc:
         condition: service_healthy
-    volumes: ["./kerberos-lab/generated:/shared:ro"]
+    volumes: ["./kerberos-generated:/shared:ro"]
     ports: ["127.0.0.1:8602:8080"]
     networks:
       default:
@@ -189,10 +190,11 @@ services:
     depends_on:
       kerberos-web:
         condition: service_started
-    volumes: ["./kerberos-lab/generated:/shared:ro"]
+    volumes: ["./kerberos-generated:/shared:ro"]
     networks:
       - default
 
 networks:
   default:
     name: zap-auth-testbed
+

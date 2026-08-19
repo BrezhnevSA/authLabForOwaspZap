@@ -1,8 +1,8 @@
-# OWASP ZAP Authentication Lab v3
+# OWASP ZAP Authentication Lab v4
 
 A local authentication testbed for comparing OWASP ZAP authentication/session mechanisms against deliberately different real-world login flows.
 
-This version keeps all v2 scenarios and adds protocol/header authentication, six customer-style browser flows, real NTLM challenge/response, and an optional real Kerberos/SPNEGO lab.
+This version keeps all previous scenarios and adds a self-provisioning Kerberos/SPNEGO lab that automatically exports the client keytab and Kerberos configs needed by ZAP.
 
 ## Credentials and fixed test secrets
 
@@ -32,27 +32,31 @@ Kerberos is intentionally behind a profile because it starts a KDC and builds ex
 
 ```bash
 docker compose --profile kerberos up --build -d
-
 docker compose --profile kerberos run --rm kerberos-client-check
 ```
 
-The second command obtains a real Kerberos ticket for `zapuser@ZAP.TEST` and calls the SPNEGO-protected endpoint, which proves the fixture itself works independently of ZAP.
+The KDC now provisions **everything automatically**. After startup, look in `./kerberos-generated/`:
 
-The KDC also writes a client keytab (`zapuser.keytab`) and `krb5.conf` to
-`kerberos-lab/generated/`. The terminal regression client uploads those files through the
-AppScreener API. They are generated artifacts and are intentionally ignored by Git.
+```text
+kerberos-generated/
+├── zapuser.keytab       # client keytab: provide this to ZAP
+├── http.keytab          # server keytab: test web service only
+├── krb5-docker.conf     # ZAP/backend running in Docker network
+├── krb5-host.conf       # ZAP/backend running directly on host
+├── krb5.conf            # same as Docker config
+├── TESTBED.txt          # principals, credentials, targets
+├── kerberos-client.env  # machine-readable client values
+├── zapuser.keytab.txt   # klist inventory
+└── http.keytab.txt      # klist inventory
+```
 
-## AppScreener terminal and Postman regression clients
+No manual `kadmin.local`, `docker cp`, or keytab generation is required. The second command authenticates **using `zapuser.keytab`**, then calls the SPNEGO-protected endpoint, proving the exact client keytab intended for ZAP works.
 
-This testbed includes two clients for checking the complete Backend -> DAST daemon -> ZAP path:
+To print the exact generated paths and target for your deployment mode:
 
-- `run-dast-scans.sh` supports a fast synchronous `ACTION=check` mode and the original full
-  `ACTION=scan` mode;
-- `postman/zap-auth-testbed.postman_collection.json` contains matching quick-check and scan
-  folders for all protocol auth types and the new form/browser scenarios.
-
-See [DAST_REGRESSION.md](DAST_REGRESSION.md) for setup, commands, result semantics, Kerberos file
-handling, and Postman/Newman usage.
+```bash
+./kerberos-files.sh
+```
 
 ## Scenario groups
 
@@ -137,7 +141,7 @@ The lab does not force an expected answer; the point is to record what your ZAP 
 | 8406 Basic -> form | useful stacked-auth boundary; likely needs scripting/custom composition |
 | 8501-8507 | Browser Based Authentication first; compare Form/JSON where meaningful |
 | 8601 NTLM | HTTP/NTLM Authentication -> NTLM |
-| 8602 Kerberos | AppScreener Kerberos auth with uploaded `krb5.conf` + client keytab; the daemon obtains a ticket and enables SPNEGO in ZAP |
+| 8602 Kerberos | use your Kerberos integration with generated `krb5-*.conf` + `zapuser.keytab`; endpoint uses real SPNEGO |
 
 ## Common verification
 
@@ -204,15 +208,31 @@ password: ZapTest123!
 The Kerberos profile provisions:
 
 ```text
-realm:     ZAP.TEST
-user:      zapuser@ZAP.TEST
-service:   HTTP/kerberos-web.zap.test@ZAP.TEST
+realm:              ZAP.TEST
+client principal:   zapuser@ZAP.TEST
+client password:    ZapTest123!
+HTTP service SPN:   HTTP/kerberos-web.zap.test@ZAP.TEST
 ```
 
-Two keytabs are generated at startup: `http.keytab` is mounted into the web service, while
-`zapuser.keytab` is uploaded to the DAST daemon by the regression client. The web service answers
-unauthenticated requests with `WWW-Authenticate: Negotiate` and validates the GSSAPI token against
-the service keytab.
+Two **different** keytabs are generated automatically:
+
+- `kerberos-generated/zapuser.keytab` — client keytab to pass to your ZAP Kerberos implementation;
+- `kerberos-generated/http.keytab` — server keytab mounted read-only into `kerberos-web`; do not use it as the ZAP client keytab.
+
+The same startup also generates two configs:
+
+- `krb5-docker.conf` points the realm at `kerberos-kdc.zap.test:88`; use it when the ZAP/backend container is attached to the `zap-auth-testbed` network. Target: `http://kerberos-web.zap.test:8080`.
+- `krb5-host.conf` points the realm at `127.0.0.1:10088`; use it when ZAP/backend runs directly on the Docker host. Add `127.0.0.1 kerberos-web.zap.test` to `/etc/hosts`, then target `http://kerberos-web.zap.test:8602`.
+
+The web endpoint returns `401 WWW-Authenticate: Negotiate` before authentication and validates the real GSSAPI/SPNEGO token against `http.keytab`.
+
+To verify the generated **client** artifacts:
+
+```bash
+docker compose --profile kerberos run --rm kerberos-client-check
+```
+
+That check executes `kinit -kt /shared/zapuser.keytab zapuser@ZAP.TEST` before calling `/api/whoami`.
 
 ## ZAP in Docker
 

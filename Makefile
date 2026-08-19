@@ -1,12 +1,6 @@
-.PHONY: up kerberos-up kerberos-check dast-check down build logs ps
+.PHONY: up down build logs ps
 up:
 	docker compose up --build -d
-kerberos-up:
-	docker compose --profile kerberos up --build -d
-kerberos-check:
-	docker compose --profile kerberos run --rm kerberos-client-check
-dast-check:
-	ACTION=check AUTH_MODE=protocol ./run-dast-scans.sh
 build:
 	docker compose build
 down:

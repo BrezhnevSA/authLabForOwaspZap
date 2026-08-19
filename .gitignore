@@ -4,3 +4,8 @@
 **/obj/
 **/__pycache__/
 *.pyc
+
+# Self-provisioned disposable Kerberos secrets
+kerberos-generated/*.keytab
+kerberos-generated/*.conf
+kerberos-generated/*.txt
