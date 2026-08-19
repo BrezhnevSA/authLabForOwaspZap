@@ -194,6 +194,22 @@ services:
     networks:
       - default
 
+  script-jwt-exp:
+    build: ./script-auth-token-lab
+    environment: ["SCENARIO=jwt-exp"]
+    ports: ["127.0.0.1:8701:3000"]
+
+  script-token-timeout:
+    build: ./script-auth-token-lab
+    environment: ["SCENARIO=timeout"]
+    ports: ["127.0.0.1:8702:3000"]
+
+  script-token-check:
+    build: ./script-auth-token-lab
+    environment: ["SCENARIO=check"]
+    ports: ["127.0.0.1:8703:3000"]
+
+
 networks:
   default:
     name: zap-auth-testbed

@@ -259,3 +259,11 @@ For every target record more than just whether the login dialog says success:
 ## Safety
 
 All credentials/tokens are fixed and intentionally weak. This is a disposable localhost test fixture, not production authentication code. Do not expose these services to an untrusted network.
+
+## HTTP Sender script authentication
+
+The v5 fixture adds reusable HTTP Sender script tests and three lightweight token-refresh services so VAmPI is not required for script-auth regression testing.
+
+See [`SCRIPT_AUTH_TESTS.md`](SCRIPT_AUTH_TESTS.md).
+
+New host ports: `8701` (JWT exp), `8702` (timeout refresh), `8703` (timeout + server check).
