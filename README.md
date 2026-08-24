@@ -62,86 +62,89 @@ To print the exact generated paths and target for your deployment mode:
 
 ### Original framework/browser matrix
 
-| Port | Target | Characteristic |
-|---:|---|---|
-| 8101 | spring-form | Spring form + CSRF + JSESSIONID |
-| 8102 | django-form | Django form + CSRF + session |
-| 8103 | express-form | plain form + session |
-| 8104 | dotnet-form | ASP.NET antiforgery + cookie |
-| 8201 | react-json-cookie | React -> JSON login -> HttpOnly cookie |
-| 8202 | fastapi-dynamic | login UI dynamically created by JavaScript |
-| 8203 | go-multistep | username and password on separate steps |
-| 8301 | delayed-render | login form appears after 2.5 s |
-| 8302 | nonstandard-fields | unusual field names |
-| 8303 | hash-spa | hash router + JSON fetch |
-| 8304 | enter-submit | no form/button; Enter key triggers login |
-| 8305 | iframe-login | credential fields only inside iframe |
-| 8306 | otp-challenge | password followed by OTP |
+| Port | Target             | Characteristic                             |
+|-----:|--------------------|--------------------------------------------|
+| 8101 | spring-form        | Spring form + CSRF + JSESSIONID            |
+| 8102 | django-form        | Django form + CSRF + session               |
+| 8103 | express-form       | plain form + session                       |
+| 8104 | dotnet-form        | ASP.NET antiforgery + cookie               |
+| 8201 | react-json-cookie  | React -> JSON login -> HttpOnly cookie     |
+| 8202 | fastapi-dynamic    | login UI dynamically created by JavaScript |
+| 8203 | go-multistep       | username and password on separate steps    |
+| 8301 | delayed-render     | login form appears after 2.5 s             |
+| 8302 | nonstandard-fields | unusual field names                        |
+| 8303 | hash-spa           | hash router + JSON fetch                   |
+| 8304 | enter-submit       | no form/button; Enter key triggers login   |
+| 8305 | iframe-login       | credential fields only inside iframe       |
+| 8306 | otp-challenge      | password followed by OTP                   |
 
 ### HTTP/header authentication
 
-| Port | Target | Required authentication |
-|---:|---|---|
-| 8401 | http-basic | real HTTP Basic challenge |
-| 8402 | http-digest | real HTTP Digest MD5/qop=auth challenge |
-| 8403 | bearer-token | `Authorization: Bearer ...` |
-| 8404 | api-key-header | `X-API-Key` |
-| 8405 | multi-header | two required custom headers |
+| Port | Target          | Required authentication                         |
+|-----:|-----------------|-------------------------------------------------|
+| 8401 | http-basic      | real HTTP Basic challenge                       |
+| 8402 | http-digest     | real HTTP Digest MD5/qop=auth challenge         |
+| 8403 | bearer-token    | `Authorization: Bearer ...`                     |
+| 8404 | api-key-header  | `X-API-Key`                                     |
+| 8405 | multi-header    | two required custom headers                     |
 | 8406 | basic-then-form | HTTP Basic gate followed by a normal form login |
 
 ### Additional customer-style browser flows
 
-| Port | Target | Characteristic |
-|---:|---|---|
-| 8501 | modal-login | login fields do not exist until `Sign in` is clicked |
-| 8502 | consent-checkbox | username/password are valid only when consent checkbox is selected |
-| 8503 | localstorage-jwt | JSON login returns JWT; browser stores it in localStorage and uses Authorization header |
-| 8504/8505 | sso-app + sso-idp | app redirects to a separate IdP origin and back with `state` + code |
+|      Port | Target                 | Characteristic                                                                            |
+|----------:|------------------------|-------------------------------------------------------------------------------------------|
+|      8501 | modal-login            | login fields do not exist until `Sign in` is clicked                                      |
+|      8502 | consent-checkbox       | username/password are valid only when consent checkbox is selected                        |
+|      8503 | localstorage-jwt       | JSON login returns JWT; browser stores it in localStorage and uses Authorization header   |
+| 8504/8505 | sso-app + sso-idp      | app redirects to a separate IdP origin and back with `state` + code                       |
 | 8506/8507 | cross-domain-app + IdP | same SSO pattern using distinct hostnames `customer-app.localhost` / `identity.localhost` |
 
 ### Integrated authentication
 
-| Port | Target | Characteristic |
-|---:|---|---|
-| 8601 | ntlm-auth | real NTLM challenge/response implemented with pyspnego |
+| Port | Target       | Characteristic                                                   |
+|-----:|--------------|------------------------------------------------------------------|
+| 8601 | ntlm-auth    | real NTLM challenge/response implemented with pyspnego           |
 | 8602 | kerberos-web | real Kerberos/SPNEGO protected HTTP service (profile `kerberos`) |
 
 ## v2 baseline observed in ZAP
 
 These are the previously observed results and are intentionally kept as a baseline for regression comparison:
 
-| app | Form | Browser |
-|---|---:|---:|
-| otp-challenge | no | no |
-| iframe-login | yes | no |
-| enter-submit | yes | yes |
-| hash-spa | yes | yes |
-| nonstandard-fields | yes | yes |
-| delayed-render | yes | yes |
-| go-multistep | no | yes |
-| fastapi-dynamic | no | no |
-| react-json-cookie | no | yes |
-| dotnet-form | yes | yes |
-| express-form | yes | yes |
-| django-form | yes | yes |
-| spring-form | yes | yes |
+| app                | Form | Browser |
+|--------------------|-----:|--------:|
+| otp-challenge      |   no |      no |
+| iframe-login       |  yes |      no |
+| enter-submit       |  yes |     yes |
+| hash-spa           |  yes |     yes |
+| nonstandard-fields |  yes |     yes |
+| delayed-render     |  yes |     yes |
+| go-multistep       |   no |     yes |
+| fastapi-dynamic    |   no |      no |
+| react-json-cookie  |   no |     yes |
+| dotnet-form        |  yes |     yes |
+| express-form       |  yes |     yes |
+| django-form        |  yes |     yes |
+| spring-form        |  yes |     yes |
 
 ## Recommended ZAP mechanism to try
 
 The lab does not force an expected answer; the point is to record what your ZAP build and configuration actually support. Good first choices are:
 
-| Scenario | First ZAP mechanism to test |
-|---|---|
-| 8101-8306 | Form and Browser Based Authentication |
-| 8401 Basic | HTTP/NTLM Authentication -> Basic |
-| 8402 Digest | HTTP/NTLM Authentication -> Digest |
-| 8403 Bearer | auth header env vars, Replacer, or Header Based Session Management |
-| 8404 API key | custom auth header / Replacer |
-| 8405 multiple headers | Header Based Session Management / Replacer |
-| 8406 Basic -> form | useful stacked-auth boundary; likely needs scripting/custom composition |
-| 8501-8507 | Browser Based Authentication first; compare Form/JSON where meaningful |
-| 8601 NTLM | HTTP/NTLM Authentication -> NTLM |
-| 8602 Kerberos | use your Kerberos integration with generated `krb5-*.conf` + `zapuser.keytab`; endpoint uses real SPNEGO |
+| Scenario                        | First ZAP mechanism to test                                                                              |
+|---------------------------------|----------------------------------------------------------------------------------------------------------|
+| 8101-8306                       | Form and Browser Based Authentication                                                                    |
+| 8401 Basic                      | HTTP/NTLM Authentication -> Basic                                                                        |
+| 8402 Digest                     | HTTP/NTLM Authentication -> Digest                                                                       |
+| 8403 Bearer                     | auth header env vars, Replacer, or Header Based Session Management                                       |
+| 8404 API key                    | custom auth header / Replacer                                                                            |
+| 8405 multiple headers           | Header Based Session Management / Replacer                                                               |
+| 8406 Basic -> form              | useful stacked-auth boundary; likely needs scripting/custom composition                                  |
+| 8501-8507                       | Browser Based Authentication first; compare Form/JSON where meaningful                                   |
+| 8601 NTLM                       | HTTP/NTLM Authentication -> NTLM                                                                         |
+| 8602 Kerberos                   | use your Kerberos integration with generated `krb5-*.conf` + `zapuser.keytab`; endpoint uses real SPNEGO |
+| 8701 Script jwt expire check    | custom script check via token header with decode jwt to get expire date, ttl 12 seconds                  |
+| 8702 Script token timeout check | custom script check via token header with update jwt by static timeout                                   |
+| 8703 Script token check         | custom script check via token header with update jwt by check target url /me                             |
 
 ## Common verification
 
