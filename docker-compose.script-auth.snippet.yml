@@ -1,0 +1,25 @@
+# Paste these services under `services:` in the main backend compose when the testbed
+# is embedded as ./zap-auth-testbed. They use the same default compose network as ZAP.
+
+script-jwt-exp:
+  build: ./zap-auth-testbed/script-auth-token-lab
+  environment: ["SCENARIO=jwt-exp"]
+  ports: ["127.0.0.1:8701:3000"]
+
+script-token-timeout:
+  build: ./zap-auth-testbed/script-auth-token-lab
+  environment: ["SCENARIO=timeout"]
+  ports: ["127.0.0.1:8702:3000"]
+
+script-token-check:
+  build: ./zap-auth-testbed/script-auth-token-lab
+  environment: ["SCENARIO=check"]
+  ports: ["127.0.0.1:8703:3000"]
+
+
+mock-1c:
+  build: ./zap-auth-testbed/mock-1c
+  environment:
+    - MOCK_1C_USERNAME=zapuser
+    - MOCK_1C_PASSWORD=ZapTest123!
+  ports: ["127.0.0.1:8704:8704"]

@@ -168,3 +168,14 @@ For host mode add:
 ```
 
 `http.keytab` is deliberately the server keytab and must not be supplied as the client keytab.
+
+## v5 HTTP Sender script-auth additions
+
+| Port | Scenario | Entry/login | Verify | Dedicated HTTP Sender script |
+|---:|---|---|---|---|
+| 8701 | script-jwt-exp | `POST /api/login` | `/api/whoami`, `/private` | `token-lab/01-jwt-exp-parsing.js` |
+| 8702 | script-token-timeout | `POST /api/login` | `/api/whoami`, `/private` | `token-lab/02-token-refresh-timeout.js` |
+| 8703 | script-token-check | `POST /api/login`, check `/me` | `/api/whoami`, `/private` | `token-lab/03-token-refresh-timeout-and-check.js` |
+| 8704 | mock-1c | `POST /app/e1cib/start` + `/app/ru_RU/e1cib/login` | `/RPS/hs/WMSService/messagequeue/...` | `existing-apps/09-1c-vrs-session.js` |
+
+Representative existing targets with dedicated comparison scripts are documented in `SCRIPT_AUTH_TESTS.md`.

@@ -209,6 +209,13 @@ services:
     environment: ["SCENARIO=check"]
     ports: ["127.0.0.1:8703:3000"]
 
+  mock-1c:
+    build: ./mock-1c
+    environment:
+      - MOCK_1C_USERNAME=zapuser
+      - MOCK_1C_PASSWORD=ZapTest123!
+    ports: ["127.0.0.1:8704:8704"]
+
 
 networks:
   default:

@@ -21,9 +21,11 @@ check_code hash-spa http://127.0.0.1:8303/ 200
 check_code enter-submit http://127.0.0.1:8304/login 200
 check_code iframe-login http://127.0.0.1:8305/login 200
 check_code otp-challenge http://127.0.0.1:8306/login 200
+check_code mock-1c http://127.0.0.1:8704/app 200
 
 # HTTP/header auth should reject anonymous requests.
 for p in 8401 8402 8403 8404 8405 8406 8601; do check_code "anonymous-$p" "http://127.0.0.1:$p/api/whoami" 401; done
+check_code mock-1c-anonymous http://127.0.0.1:8704/RPS/hs/WMSService/messagequeue/3421247882389737259 401
 
 # Positive protocol checks.
 printf '%-26s ' http-basic-authenticated

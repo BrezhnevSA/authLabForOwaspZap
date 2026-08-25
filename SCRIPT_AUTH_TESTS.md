@@ -86,6 +86,7 @@ The following scripts intentionally reuse existing fixtures instead of adding du
 | `iframe-login` | `06-iframe-login-cookie.js` | direct POST to login endpoint, independent of DOM/iframe | shows script auth is not UI-dependent |
 | `otp-challenge` | `07-otp-challenge-cookie.js` | username/password -> transaction -> known fixture OTP -> cookie | deterministic multi-factor fixture only |
 | `localstorage-jwt` | `08-localstorage-jwt-bearer.js` | JSON login -> `access_token` -> Authorization header | browser-token propagation without browser session state |
+| `mock-1c` | `09-1c-vrs-session.js` | 1C-style start/landing/login, random UUID `clnId`, plain `vrs-session` | custom multi-request protocol + host-wide header propagation |
 
 Directory:
 
@@ -168,3 +169,26 @@ Expected qualitative behavior:
 ## Suggested scan target
 
 For script-auth regression use `/api/whoami` or `/private` as the initial target and verify that spider/active-scan requests remain authenticated. Do not judge only the explicit login request: the important assertion is that ZAP-generated traffic receives authenticated responses after the HttpSender script runs.
+
+
+## Mock 1C VRS-session fixture
+
+The `mock-1c` service listens on host port `8704` and Docker URL `http://mock-1c:8704`. It emulates:
+
+```text
+POST /app/e1cib/start
+  -> 301 + vrs-session2 + Location
+GET landing
+POST /app/ru_RU/e1cib/login?...&sid=<UUID>&nooida&vl=ru&clnId=<UUID>
+  -> {"response":{"seance":"<UUID>"}}
+protected request
+  -> requires vrs-session: <plain UUID>
+```
+
+The fixture rejects a non-UUID `clnId`. Its primary scan target intentionally lives outside `/app` on the same hostname:
+
+```text
+/RPS/hs/WMSService/messagequeue/3421247882389737259
+```
+
+This verifies that the HTTP Sender script can authenticate through `/app` and then propagate the same session header to another path on the same host. The protected response contains `"authenticated":true`, so it can also be used with the regression runner's `ACTION=check`.

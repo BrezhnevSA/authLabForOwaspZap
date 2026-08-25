@@ -1,8 +1,8 @@
-# OWASP ZAP Authentication Lab v4
+# OWASP ZAP Authentication Lab v5
 
 A local authentication testbed for comparing OWASP ZAP authentication/session mechanisms against deliberately different real-world login flows.
 
-This version keeps all previous scenarios and adds a self-provisioning Kerberos/SPNEGO lab that automatically exports the client keytab and Kerberos configs needed by ZAP.
+This version keeps all previous scenarios, includes the self-provisioning Kerberos/SPNEGO lab, HTTP Sender script-auth fixtures, and a mock 1C `vrs-session` flow for custom-script regression testing.
 
 ## Credentials and fixed test secrets
 
@@ -101,10 +101,28 @@ To print the exact generated paths and target for your deployment mode:
 
 ### Integrated authentication
 
-| Port | Target       | Characteristic                                                   |
-|-----:|--------------|------------------------------------------------------------------|
-| 8601 | ntlm-auth    | real NTLM challenge/response implemented with pyspnego           |
+| Port | Target | Characteristic |
+|---:|---|---|
+| 8601 | ntlm-auth | real NTLM challenge/response implemented with pyspnego |
 | 8602 | kerberos-web | real Kerberos/SPNEGO protected HTTP service (profile `kerberos`) |
+
+### HTTP Sender script authentication
+
+| Port | Target               | Characteristic                                                                                                                                                                   |
+|-----:|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 8701 | script-jwt-exp       | Token endpoint returns a JWT with a real `exp`; the HTTP Sender script parses the expiration time and refreshes the token before it expires                                      |
+| 8702 | script-token-timeout | Token endpoint returns an opaque token; the HTTP Sender script cannot read an `exp`, so it refreshes proactively using its own timeout                                           |
+| 8703 | script-token-check   | Token endpoint returns a short-lived opaque token; the HTTP Sender script periodically checks the current token against `/me` and requests a new token after the old one expires |
+| 8704 | mock-1c              | 1C-style `vrs-session2` -> login activation -> plain `vrs-session`; validates UUID `clnId` and cross-path session propagation                                                    |
+
+Scripts used by these targets:
+
+- `8701`: `http-sender-scripts/token-lab/01-jwt-exp-parsing.js`
+- `8702`: `http-sender-scripts/token-lab/02-token-refresh-timeout.js`
+- `8703`: `http-sender-scripts/token-lab/03-token-refresh-timeout-and-check.js`
+- `8704`: `http-sender-scripts/existing-apps/09-1c-vrs-session.js`
+
+For the 1C mock use Docker target `http://mock-1c:8704`. The protected cross-path target is `http://mock-1c:8704/RPS/hs/WMSService/messagequeue/3421247882389737259`.
 
 ## v2 baseline observed in ZAP
 
@@ -130,21 +148,22 @@ These are the previously observed results and are intentionally kept as a baseli
 
 The lab does not force an expected answer; the point is to record what your ZAP build and configuration actually support. Good first choices are:
 
-| Scenario                        | First ZAP mechanism to test                                                                              |
-|---------------------------------|----------------------------------------------------------------------------------------------------------|
-| 8101-8306                       | Form and Browser Based Authentication                                                                    |
-| 8401 Basic                      | HTTP/NTLM Authentication -> Basic                                                                        |
-| 8402 Digest                     | HTTP/NTLM Authentication -> Digest                                                                       |
-| 8403 Bearer                     | auth header env vars, Replacer, or Header Based Session Management                                       |
-| 8404 API key                    | custom auth header / Replacer                                                                            |
-| 8405 multiple headers           | Header Based Session Management / Replacer                                                               |
-| 8406 Basic -> form              | useful stacked-auth boundary; likely needs scripting/custom composition                                  |
-| 8501-8507                       | Browser Based Authentication first; compare Form/JSON where meaningful                                   |
-| 8601 NTLM                       | HTTP/NTLM Authentication -> NTLM                                                                         |
-| 8602 Kerberos                   | use your Kerberos integration with generated `krb5-*.conf` + `zapuser.keytab`; endpoint uses real SPNEGO |
-| 8701 Script jwt expire check    | custom script check via token header with decode jwt to get expire date, ttl 12 seconds                  |
-| 8702 Script token timeout check | custom script check via token header with update jwt by static timeout                                   |
-| 8703 Script token check         | custom script check via token header with update jwt by check target url /me                             |
+| Scenario                  | First ZAP mechanism to test                                                                                      |
+|---------------------------|------------------------------------------------------------------------------------------------------------------|
+| 8101-8306                 | Form and Browser Based Authentication                                                                            |
+| 8401 Basic                | HTTP/NTLM Authentication -> Basic                                                                                |
+| 8402 Digest               | HTTP/NTLM Authentication -> Digest                                                                               |
+| 8403 Bearer               | auth header env vars, Replacer, or Header Based Session Management                                               |
+| 8404 API key              | custom auth header / Replacer                                                                                    |
+| 8405 multiple headers     | Header Based Session Management / Replacer                                                                       |
+| 8406 Basic -> form        | useful stacked-auth boundary; likely needs scripting/custom composition                                          |
+| 8501-8507                 | Browser Based Authentication first; compare Form/JSON where meaningful                                           |
+| 8601 NTLM                 | HTTP/NTLM Authentication -> NTLM                                                                                 |
+| 8602 Kerberos             | use your Kerberos integration with generated `krb5-*.conf` + `zapuser.keytab`; endpoint uses real SPNEGO         |
+| 8701 script-jwt-exp       | HTTP Sender script `token-lab/01-jwt-exp-parsing.js`; refresh based on JWT `exp`                                 |
+| 8702 script-token-timeout | HTTP Sender script `token-lab/02-token-refresh-timeout.js`; proactive refresh by local timeout                   |
+| 8703 script-token-check   | HTTP Sender script `token-lab/03-token-refresh-timeout-and-check.js`; periodic server-side token check + refresh |
+| 8704 mock-1c              | HTTP Sender script `existing-apps/09-1c-vrs-session.js`                                                          |
 
 ## Common verification
 
@@ -269,4 +288,4 @@ The v5 fixture adds reusable HTTP Sender script tests and three lightweight toke
 
 See [`SCRIPT_AUTH_TESTS.md`](SCRIPT_AUTH_TESTS.md).
 
-New host ports: `8701` (JWT exp), `8702` (timeout refresh), `8703` (timeout + server check).
+HTTP Sender host ports: `8701` (JWT `exp` parsing), `8702` (proactive timeout refresh), `8703` (timeout + server token check), `8704` (1C-style `vrs-session`).
