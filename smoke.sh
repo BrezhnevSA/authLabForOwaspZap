@@ -22,6 +22,13 @@ check_code enter-submit http://127.0.0.1:8304/login 200
 check_code iframe-login http://127.0.0.1:8305/login 200
 check_code otp-challenge http://127.0.0.1:8306/login 200
 check_code mock-1c http://127.0.0.1:8704/app 200
+check_code large-bundle-spa http://127.0.0.1:8705/ 200
+check_code many-states-spa http://127.0.0.1:8706/ 200
+check_code runtime-discovery-spa http://127.0.0.1:8707/ 200
+check_code large-api-response http://127.0.0.1:8708/ 200
+check_code bft-regression-spa http://127.0.0.1:8709/app/ 200
+check_code scope-noise http://127.0.0.1:8710/ 200
+check_code complex-react-auth http://127.0.0.1:8711/app/ 200
 
 # HTTP/header auth should reject anonymous requests.
 for p in 8401 8402 8403 8404 8405 8406 8601; do check_code "anonymous-$p" "http://127.0.0.1:$p/api/whoami" 401; done

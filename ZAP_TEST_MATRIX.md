@@ -179,3 +179,31 @@ For host mode add:
 | 8704 | mock-1c | `POST /app/e1cib/start` + `/app/ru_RU/e1cib/login` | `/RPS/hs/WMSService/messagequeue/...` | `existing-apps/09-1c-vrs-session.js` |
 
 Representative existing targets with dedicated comparison scripts are documented in `SCRIPT_AUTH_TESTS.md`.
+
+
+## Discovery regression applications
+
+| Port | Target | Primary regression | Coverage target |
+|---:|---|---|---:|
+| 8705 | large-bundle-spa | JS response body around 1 MiB storage boundary | 3 |
+| 8706 | many-states-spa | crawler state/depth limits | 15 |
+| 8707 | runtime-discovery-spa | runtime endpoints + unusual clickable elements + iframe | 6 |
+| 8708 | large-api-response | Active Scan / history storage with large API bodies | 3 |
+| 8709 | bft-regression-spa | combined SPA discovery regression | 10 |
+| 8710 | scope-noise | out-of-scope browser/service traffic | 3 |
+
+Use `GET /__testbed/coverage` after each run. Reset with `discovery-coverage.sh reset` before the next run. Client Spider can be added later as another discovery column without changing these fixtures.
+
+
+## Complex React auth + DIV navigation (8711)
+
+| Test | Expected |
+|---|---|
+| Classic Form Based Authentication | FAIL: login endpoint accepts JSON only |
+| Browser Based Authentication with session header extraction | PASS |
+| Protected API without `Authorization: Bearer ...` | 401 |
+| Traditional Spider business discovery | Low: no business anchors |
+| AJAX Spider default DIV clicking | Measure via `/__testbed/coverage` |
+| Nested DIV dropdown traversal | Measure `/api/contracts` and `/api/archive` coverage |
+
+The fixture is intentionally named `complex-react-auth`; it does not depend on any customer-specific product name.

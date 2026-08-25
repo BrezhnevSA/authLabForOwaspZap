@@ -1,8 +1,8 @@
-# OWASP ZAP Authentication Lab v5
+# OWASP ZAP Authentication + Discovery Lab v7
 
 A local authentication testbed for comparing OWASP ZAP authentication/session mechanisms against deliberately different real-world login flows.
 
-This version keeps all previous scenarios, includes the self-provisioning Kerberos/SPNEGO lab, HTTP Sender script-auth fixtures, and a mock 1C `vrs-session` flow for custom-script regression testing.
+This version keeps all previous authentication scenarios, the Kerberos/SPNEGO lab, HTTP Sender script-auth fixtures and mock 1C flow, and adds six deterministic discovery regression applications on ports 8705-8710 plus the complex React authentication/discovery fixture on port 8711.
 
 ## Credentials and fixed test secrets
 
@@ -26,6 +26,7 @@ All host-published ports bind to `127.0.0.1`. For the hostname-sensitive SSO cas
 ```bash
 docker compose up --build -d
 ./smoke.sh
+./smoke-discovery.sh
 ```
 
 Kerberos is intentionally behind a profile because it starts a KDC and builds extra system packages:
@@ -62,41 +63,41 @@ To print the exact generated paths and target for your deployment mode:
 
 ### Original framework/browser matrix
 
-| Port | Target             | Characteristic                             |
-|-----:|--------------------|--------------------------------------------|
-| 8101 | spring-form        | Spring form + CSRF + JSESSIONID            |
-| 8102 | django-form        | Django form + CSRF + session               |
-| 8103 | express-form       | plain form + session                       |
-| 8104 | dotnet-form        | ASP.NET antiforgery + cookie               |
-| 8201 | react-json-cookie  | React -> JSON login -> HttpOnly cookie     |
-| 8202 | fastapi-dynamic    | login UI dynamically created by JavaScript |
-| 8203 | go-multistep       | username and password on separate steps    |
-| 8301 | delayed-render     | login form appears after 2.5 s             |
-| 8302 | nonstandard-fields | unusual field names                        |
-| 8303 | hash-spa           | hash router + JSON fetch                   |
-| 8304 | enter-submit       | no form/button; Enter key triggers login   |
-| 8305 | iframe-login       | credential fields only inside iframe       |
-| 8306 | otp-challenge      | password followed by OTP                   |
+| Port | Target | Characteristic |
+|---:|---|---|
+| 8101 | spring-form | Spring form + CSRF + JSESSIONID |
+| 8102 | django-form | Django form + CSRF + session |
+| 8103 | express-form | plain form + session |
+| 8104 | dotnet-form | ASP.NET antiforgery + cookie |
+| 8201 | react-json-cookie | React -> JSON login -> HttpOnly cookie |
+| 8202 | fastapi-dynamic | login UI dynamically created by JavaScript |
+| 8203 | go-multistep | username and password on separate steps |
+| 8301 | delayed-render | login form appears after 2.5 s |
+| 8302 | nonstandard-fields | unusual field names |
+| 8303 | hash-spa | hash router + JSON fetch |
+| 8304 | enter-submit | no form/button; Enter key triggers login |
+| 8305 | iframe-login | credential fields only inside iframe |
+| 8306 | otp-challenge | password followed by OTP |
 
 ### HTTP/header authentication
 
-| Port | Target          | Required authentication                         |
-|-----:|-----------------|-------------------------------------------------|
-| 8401 | http-basic      | real HTTP Basic challenge                       |
-| 8402 | http-digest     | real HTTP Digest MD5/qop=auth challenge         |
-| 8403 | bearer-token    | `Authorization: Bearer ...`                     |
-| 8404 | api-key-header  | `X-API-Key`                                     |
-| 8405 | multi-header    | two required custom headers                     |
+| Port | Target | Required authentication |
+|---:|---|---|
+| 8401 | http-basic | real HTTP Basic challenge |
+| 8402 | http-digest | real HTTP Digest MD5/qop=auth challenge |
+| 8403 | bearer-token | `Authorization: Bearer ...` |
+| 8404 | api-key-header | `X-API-Key` |
+| 8405 | multi-header | two required custom headers |
 | 8406 | basic-then-form | HTTP Basic gate followed by a normal form login |
 
 ### Additional customer-style browser flows
 
-|      Port | Target                 | Characteristic                                                                            |
-|----------:|------------------------|-------------------------------------------------------------------------------------------|
-|      8501 | modal-login            | login fields do not exist until `Sign in` is clicked                                      |
-|      8502 | consent-checkbox       | username/password are valid only when consent checkbox is selected                        |
-|      8503 | localstorage-jwt       | JSON login returns JWT; browser stores it in localStorage and uses Authorization header   |
-| 8504/8505 | sso-app + sso-idp      | app redirects to a separate IdP origin and back with `state` + code                       |
+| Port | Target | Characteristic |
+|---:|---|---|
+| 8501 | modal-login | login fields do not exist until `Sign in` is clicked |
+| 8502 | consent-checkbox | username/password are valid only when consent checkbox is selected |
+| 8503 | localstorage-jwt | JSON login returns JWT; browser stores it in localStorage and uses Authorization header |
+| 8504/8505 | sso-app + sso-idp | app redirects to a separate IdP origin and back with `state` + code |
 | 8506/8507 | cross-domain-app + IdP | same SSO pattern using distinct hostnames `customer-app.localhost` / `identity.localhost` |
 
 ### Integrated authentication
@@ -108,12 +109,12 @@ To print the exact generated paths and target for your deployment mode:
 
 ### HTTP Sender script authentication
 
-| Port | Target               | Characteristic                                                                                                                                                                   |
-|-----:|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 8701 | script-jwt-exp       | Token endpoint returns a JWT with a real `exp`; the HTTP Sender script parses the expiration time and refreshes the token before it expires                                      |
-| 8702 | script-token-timeout | Token endpoint returns an opaque token; the HTTP Sender script cannot read an `exp`, so it refreshes proactively using its own timeout                                           |
-| 8703 | script-token-check   | Token endpoint returns a short-lived opaque token; the HTTP Sender script periodically checks the current token against `/me` and requests a new token after the old one expires |
-| 8704 | mock-1c              | 1C-style `vrs-session2` -> login activation -> plain `vrs-session`; validates UUID `clnId` and cross-path session propagation                                                    |
+| Port | Target | Characteristic |
+|---:|---|---|
+| 8701 | script-jwt-exp | Token endpoint returns a JWT with a real `exp`; the HTTP Sender script parses the expiration time and refreshes the token before it expires |
+| 8702 | script-token-timeout | Token endpoint returns an opaque token; the HTTP Sender script cannot read an `exp`, so it refreshes proactively using its own timeout |
+| 8703 | script-token-check | Token endpoint returns a short-lived opaque token; the HTTP Sender script periodically checks the current token against `/me` and requests a new token after the old one expires |
+| 8704 | mock-1c | 1C-style `vrs-session2` -> login activation -> plain `vrs-session`; validates UUID `clnId` and cross-path session propagation |
 
 Scripts used by these targets:
 
@@ -124,46 +125,62 @@ Scripts used by these targets:
 
 For the 1C mock use Docker target `http://mock-1c:8704`. The protected cross-path target is `http://mock-1c:8704/RPS/hs/WMSService/messagequeue/3421247882389737259`.
 
+
+### Discovery regression applications
+
+| Port | Target | Characteristic |
+|---:|---|---|
+| 8705 | large-bundle-spa | 900 KiB / 1150 KiB / lazy 1250 KiB JS bundles to test the 1 MiB response-body boundary without default extreme stress |
+| 8706 | many-states-spa | 15 sequential DOM states, each calling a unique API endpoint; measures `maxCrawlStates` / crawl-depth effects |
+| 8707 | runtime-discovery-spa | runtime-built API URLs triggered by custom elements, `div role=button`, modal, hash route and iframe |
+| 8708 | large-api-response | linked API responses around the 1 MiB boundary: 100 KiB, 900 KiB and 1150 KiB |
+| 8709 | bft-regression-spa | composite BFT-like SPA: hash routing, custom menu elements, runtime URLs, cross-path APIs and nested action |
+| 8710 | scope-noise | target intentionally loads resources from separate Docker DNS aliases so out-of-scope crawler pollution can be measured |
+| 8711 | complex-react-auth | ordinary-looking React login that actually submits JSON, stores `access_token` in localStorage, requires Bearer headers, and uses only DIV-based application navigation |
+
+Every discovery fixture, including `complex-react-auth`, has an independent `GET /__testbed/coverage` counter and `GET /__testbed/expected`. The reset endpoint is intentionally unlinked and omitted from OpenAPI; use `./discovery-coverage.sh reset`. See [`DISCOVERY_TESTS.md`](DISCOVERY_TESTS.md).
+
 ## v2 baseline observed in ZAP
 
 These are the previously observed results and are intentionally kept as a baseline for regression comparison:
 
-| app                | Form | Browser |
-|--------------------|-----:|--------:|
-| otp-challenge      |   no |      no |
-| iframe-login       |  yes |      no |
-| enter-submit       |  yes |     yes |
-| hash-spa           |  yes |     yes |
-| nonstandard-fields |  yes |     yes |
-| delayed-render     |  yes |     yes |
-| go-multistep       |   no |     yes |
-| fastapi-dynamic    |   no |      no |
-| react-json-cookie  |   no |     yes |
-| dotnet-form        |  yes |     yes |
-| express-form       |  yes |     yes |
-| django-form        |  yes |     yes |
-| spring-form        |  yes |     yes |
+| app | Form | Browser |
+|---|---:|---:|
+| otp-challenge | no | no |
+| iframe-login | yes | no |
+| enter-submit | yes | yes |
+| hash-spa | yes | yes |
+| nonstandard-fields | yes | yes |
+| delayed-render | yes | yes |
+| go-multistep | no | yes |
+| fastapi-dynamic | no | no |
+| react-json-cookie | no | yes |
+| dotnet-form | yes | yes |
+| express-form | yes | yes |
+| django-form | yes | yes |
+| spring-form | yes | yes |
 
 ## Recommended ZAP mechanism to try
 
 The lab does not force an expected answer; the point is to record what your ZAP build and configuration actually support. Good first choices are:
 
-| Scenario                  | First ZAP mechanism to test                                                                                      |
-|---------------------------|------------------------------------------------------------------------------------------------------------------|
-| 8101-8306                 | Form and Browser Based Authentication                                                                            |
-| 8401 Basic                | HTTP/NTLM Authentication -> Basic                                                                                |
-| 8402 Digest               | HTTP/NTLM Authentication -> Digest                                                                               |
-| 8403 Bearer               | auth header env vars, Replacer, or Header Based Session Management                                               |
-| 8404 API key              | custom auth header / Replacer                                                                                    |
-| 8405 multiple headers     | Header Based Session Management / Replacer                                                                       |
-| 8406 Basic -> form        | useful stacked-auth boundary; likely needs scripting/custom composition                                          |
-| 8501-8507                 | Browser Based Authentication first; compare Form/JSON where meaningful                                           |
-| 8601 NTLM                 | HTTP/NTLM Authentication -> NTLM                                                                                 |
-| 8602 Kerberos             | use your Kerberos integration with generated `krb5-*.conf` + `zapuser.keytab`; endpoint uses real SPNEGO         |
-| 8701 script-jwt-exp       | HTTP Sender script `token-lab/01-jwt-exp-parsing.js`; refresh based on JWT `exp`                                 |
-| 8702 script-token-timeout | HTTP Sender script `token-lab/02-token-refresh-timeout.js`; proactive refresh by local timeout                   |
-| 8703 script-token-check   | HTTP Sender script `token-lab/03-token-refresh-timeout-and-check.js`; periodic server-side token check + refresh |
-| 8704 mock-1c              | HTTP Sender script `existing-apps/09-1c-vrs-session.js`                                                          |
+| Scenario | First ZAP mechanism to test |
+|---|---|
+| 8101-8306 | Form and Browser Based Authentication |
+| 8401 Basic | HTTP/NTLM Authentication -> Basic |
+| 8402 Digest | HTTP/NTLM Authentication -> Digest |
+| 8403 Bearer | auth header env vars, Replacer, or Header Based Session Management |
+| 8404 API key | custom auth header / Replacer |
+| 8405 multiple headers | Header Based Session Management / Replacer |
+| 8406 Basic -> form | useful stacked-auth boundary; likely needs scripting/custom composition |
+| 8501-8507 | Browser Based Authentication first; compare Form/JSON where meaningful |
+| 8601 NTLM | HTTP/NTLM Authentication -> NTLM |
+| 8602 Kerberos | use your Kerberos integration with generated `krb5-*.conf` + `zapuser.keytab`; endpoint uses real SPNEGO |
+| 8701 script-jwt-exp | HTTP Sender script `token-lab/01-jwt-exp-parsing.js`; refresh based on JWT `exp` |
+| 8702 script-token-timeout | HTTP Sender script `token-lab/02-token-refresh-timeout.js`; proactive refresh by local timeout |
+| 8703 script-token-check | HTTP Sender script `token-lab/03-token-refresh-timeout-and-check.js`; periodic server-side token check + refresh |
+| 8704 mock-1c | HTTP Sender script `existing-apps/09-1c-vrs-session.js` |
+| 8705-8710 discovery | Spider + AJAX Spider now; add Client Spider to the same coverage matrix when the runner supports it |
 
 ## Common verification
 
@@ -288,4 +305,19 @@ The v5 fixture adds reusable HTTP Sender script tests and three lightweight toke
 
 See [`SCRIPT_AUTH_TESTS.md`](SCRIPT_AUTH_TESTS.md).
 
-HTTP Sender host ports: `8701` (JWT `exp` parsing), `8702` (proactive timeout refresh), `8703` (timeout + server token check), `8704` (1C-style `vrs-session`).
+### Complex React authentication / DIV navigation (8711)
+
+`complex-react-auth` deliberately looks like a normal username/password form, but React prevents the native form submit and sends JSON to `/api/auth/login`. The server rejects classic `application/x-www-form-urlencoded` form authentication. A successful login returns `access_token`; the browser stores it in `localStorage`, and protected APIs accept only `Authorization: Bearer <access_token>`.
+
+After login, application navigation is made only from clickable `div` elements, including nested dropdowns. There are no business `<a href>` links or navigation buttons. This makes the same fixture useful for both Browser Based Authentication/session-header regression and AJAX Spider click-element discovery.
+
+Expected auth behavior:
+
+- Form Based Authentication: expected to fail.
+- Browser Based Authentication without session headers: browser login can succeed, but backend-driven protected requests are unauthorized.
+- Browser Based Authentication with `{"Authorization":"Bearer {%json:access_token%}"}`: expected to pass.
+
+Coverage and authentication counters are available at `GET /__testbed/coverage`; the hidden reset uses the same control-header mechanism as 8705-8710.
+
+
+HTTP Sender host ports: `8701` (JWT `exp` parsing), `8702` (proactive timeout refresh), `8703` (timeout + server token check), `8704` (1C-style `vrs-session`). Discovery regression ports are `8705`-`8710`; see `DISCOVERY_TESTS.md`.

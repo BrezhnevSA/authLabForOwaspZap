@@ -217,7 +217,62 @@ services:
     ports: ["127.0.0.1:8704:8704"]
 
 
+  large-bundle-spa:
+    build: ./discovery-lab
+    environment:
+      - SCENARIO=large-bundle-spa
+      - PORT=8705
+    ports: ["127.0.0.1:8705:8705"]
+
+  many-states-spa:
+    build: ./discovery-lab
+    environment:
+      - SCENARIO=many-states-spa
+      - PORT=8706
+    ports: ["127.0.0.1:8706:8706"]
+
+  runtime-discovery-spa:
+    build: ./discovery-lab
+    environment:
+      - SCENARIO=runtime-discovery-spa
+      - PORT=8707
+    ports: ["127.0.0.1:8707:8707"]
+
+  large-api-response:
+    build: ./discovery-lab
+    environment:
+      - SCENARIO=large-api-response
+      - PORT=8708
+    ports: ["127.0.0.1:8708:8708"]
+
+  bft-regression-spa:
+    build: ./discovery-lab
+    environment:
+      - SCENARIO=bft-regression-spa
+      - PORT=8709
+    ports: ["127.0.0.1:8709:8709"]
+
+  scope-noise:
+    build: ./discovery-lab
+    environment:
+      - SCENARIO=scope-noise
+      - PORT=8710
+    ports: ["127.0.0.1:8710:8710"]
+    networks:
+      default:
+        aliases:
+          - scope-noise-cdn
+          - scope-noise-analytics
+          - scope-noise-updates
+
+  complex-react-auth:
+    build: ./complex-react-auth
+    environment:
+      - PORT=8711
+      - COMPLEX_AUTH_USERNAME=zapuser
+      - COMPLEX_AUTH_PASSWORD=ZapTest123!
+    ports: ["127.0.0.1:8711:8711"]
+
 networks:
   default:
     name: zap-auth-testbed
-
