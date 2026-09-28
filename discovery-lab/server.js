@@ -130,15 +130,21 @@ function coverage() {
   const visited = config.expected.filter(p => state.hits.has(p));
   const missing = config.expected.filter(p => !state.hits.has(p));
   const hits = Object.fromEntries([...state.hits.entries()]);
+  const coveragePercent = config.expected.length ? Number((visited.length * 100 / config.expected.length).toFixed(2)) : 100;
+  const discovery = {
+    expected: config.expected.length,
+    visited: visited.length,
+    coveragePercent,
+    visitedEndpoints: visited,
+    missingEndpoints: missing,
+  };
   return {
     application: config.name,
     scenario: SCENARIO,
     port: PORT,
-    expected: config.expected.length,
-    visited: visited.length,
-    coveragePercent: config.expected.length ? Number((visited.length * 100 / config.expected.length).toFixed(2)) : 100,
-    visitedEndpoints: visited,
-    missingEndpoints: missing,
+    discovery,
+    // Backward-compatible top-level fields used by the older discovery helper.
+    ...discovery,
     hits,
     noiseRequests: Object.fromEntries([...state.noise.entries()]),
     startedAt: state.startedAt,

@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Mock1CServer {
     private static final int PORT = Integer.parseInt(System.getenv().getOrDefault("PORT", "8704"));
@@ -28,7 +29,20 @@ public class Mock1CServer {
     private static final String USERNAME = System.getenv().getOrDefault("MOCK_1C_USERNAME", "zapuser");
     private static final String PASSWORD = System.getenv().getOrDefault("MOCK_1C_PASSWORD", "ZapTest123!");
 
+    private static final String CONTROL_TOKEN = "zap-testbed-reset-v1";
+    private static final String RPS_EXPECTED = "/RPS/hs/WMSService/messagequeue/3421247882389737259";
+    private static final Set<String> EXPECTED = Set.of(APP_PATH + "/api/orders", RPS_EXPECTED);
     private static final Map<String, Session> sessions = new ConcurrentHashMap<>();
+    private static final Set<String> hits = ConcurrentHashMap.newKeySet();
+    private static final AtomicInteger startRequests = new AtomicInteger();
+    private static final AtomicInteger sessionsCreated = new AtomicInteger();
+    private static final AtomicInteger loginRequests = new AtomicInteger();
+    private static final AtomicInteger successfulLogins = new AtomicInteger();
+    private static final AtomicInteger failedLogins = new AtomicInteger();
+    private static final AtomicInteger invalidClientIds = new AtomicInteger();
+    private static final AtomicInteger validSessionRequests = new AtomicInteger();
+    private static final AtomicInteger missingSessionRequests = new AtomicInteger();
+    private static final AtomicInteger invalidSessionRequests = new AtomicInteger();
 
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", PORT), 0);
@@ -42,6 +56,9 @@ public class Mock1CServer {
         server.createContext("/openapi.json", Mock1CServer::handleOpenApi);
         server.createContext("/debug/sessions", Mock1CServer::handleDebugSessions);
         server.createContext("/debug/invalidate", Mock1CServer::handleInvalidate);
+        server.createContext("/__testbed/expected", Mock1CServer::handleExpected);
+        server.createContext("/__testbed/coverage", Mock1CServer::handleCoverage);
+        server.createContext("/__testbed/control/reset", Mock1CServer::handleReset);
         server.createContext(APP_PATH, Mock1CServer::handleAppRoot);
         server.createContext("/", Mock1CServer::handleRoot);
 
@@ -54,6 +71,7 @@ public class Mock1CServer {
 
     private static void handleStart(HttpExchange ex) throws IOException {
         log(ex);
+        startRequests.incrementAndGet();
         if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
             methodNotAllowed(ex, "POST");
             return;
@@ -61,6 +79,7 @@ public class Mock1CServer {
 
         Map<String, String> form = parseForm(readBody(ex));
         if (!USERNAME.equals(form.get("usr")) || !PASSWORD.equals(form.get("pwd"))) {
+            failedLogins.incrementAndGet();
             sendText(ex, 401, "Authentication failed\n");
             return;
         }
@@ -71,6 +90,7 @@ public class Mock1CServer {
 
         String sid = UUID.randomUUID().toString();
         sessions.put(sid, new Session(sid));
+        sessionsCreated.incrementAndGet();
 
         Headers h = ex.getResponseHeaders();
         h.set("vrs-session2", sid);
@@ -83,6 +103,7 @@ public class Mock1CServer {
 
     private static void handleLogin(HttpExchange ex) throws IOException {
         log(ex);
+        loginRequests.incrementAndGet();
         if (!"POST".equalsIgnoreCase(ex.getRequestMethod())) {
             methodNotAllowed(ex, "POST");
             return;
@@ -109,6 +130,8 @@ public class Mock1CServer {
             return;
         }
         if (!isUuid(clnId)) {
+            invalidClientIds.incrementAndGet();
+            failedLogins.incrementAndGet();
             sendJson(ex, 400, "{\"error\":\"clnId must be UUID\"}");
             return;
         }
@@ -119,6 +142,7 @@ public class Mock1CServer {
 
         Session session = sessions.get(sid);
         session.authenticated = true;
+        successfulLogins.incrementAndGet();
         session.clientId = clnId;
         session.lastSeen = Instant.now();
 
@@ -160,6 +184,7 @@ public class Mock1CServer {
 
     private static void handleProtectedOrders(HttpExchange ex) throws IOException {
         log(ex);
+        hits.add(APP_PATH + "/api/orders");
         Session s = requireSession(ex);
         if (s == null) return;
         sendJson(ex, 200, "{\"authenticated\":true,\"username\":\"" + escapeJson(USERNAME) + "\",\"orders\":[{\"id\":101,\"status\":\"READY\"}],\"seance\":\"" + s.sid + "\"}");
@@ -177,6 +202,7 @@ public class Mock1CServer {
             return;
         }
         String messageId = path.substring(prefix.length());
+        if (RPS_EXPECTED.equals(path)) hits.add(RPS_EXPECTED);
         sendJson(ex, 200,
                 "{\"authenticated\":true,\"username\":\"" + escapeJson(USERNAME) + "\",\"messageId\":\"" + escapeJson(messageId) + "\",\"status\":\"OK\",\"authenticatedBy\":\"vrs-session\",\"seance\":\"" + s.sid + "\"}");
     }
@@ -228,6 +254,47 @@ public class Mock1CServer {
         sendJson(ex, 200, spec);
     }
 
+    private static void handleExpected(HttpExchange ex) throws IOException {
+        if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) { methodNotAllowed(ex, "GET"); return; }
+        sendJson(ex, 200, "{\"application\":\"mock-1c\",\"expectedEndpoints\":[\"/app/api/orders\",\"" + RPS_EXPECTED + "\"]}");
+    }
+
+    private static void handleCoverage(HttpExchange ex) throws IOException {
+        if (!"GET".equalsIgnoreCase(ex.getRequestMethod())) { methodNotAllowed(ex, "GET"); return; }
+        int visited = hits.size();
+        StringBuilder visitedJson = new StringBuilder("[");
+        StringBuilder missingJson = new StringBuilder("[");
+        boolean fv = true, fm = true;
+        for (String endpoint : EXPECTED) {
+            if (hits.contains(endpoint)) {
+                if (!fv) visitedJson.append(','); fv = false; visitedJson.append('"').append(escapeJson(endpoint)).append('"');
+            } else {
+                if (!fm) missingJson.append(','); fm = false; missingJson.append('"').append(escapeJson(endpoint)).append('"');
+            }
+        }
+        visitedJson.append(']'); missingJson.append(']');
+        double percent = EXPECTED.isEmpty() ? 100.0 : visited * 100.0 / EXPECTED.size();
+        String body = "{\"application\":\"mock-1c\",\"scenario\":\"vrs-session\",\"discovery\":{" +
+                "\"expected\":" + EXPECTED.size() + ",\"visited\":" + visited + ",\"coveragePercent\":" + String.format(java.util.Locale.ROOT, "%.2f", percent) +
+                ",\"visitedEndpoints\":" + visitedJson + ",\"missingEndpoints\":" + missingJson + "},\"authentication\":{" +
+                "\"startRequests\":" + startRequests.get() + ",\"sessionsCreated\":" + sessionsCreated.get() +
+                ",\"loginRequests\":" + loginRequests.get() + ",\"successfulLogins\":" + successfulLogins.get() +
+                ",\"failedLogins\":" + failedLogins.get() + ",\"invalidClientIds\":" + invalidClientIds.get() +
+                ",\"requestsWithValidVrsSession\":" + validSessionRequests.get() +
+                ",\"requestsWithoutVrsSession\":" + missingSessionRequests.get() +
+                ",\"requestsWithInvalidVrsSession\":" + invalidSessionRequests.get() + ",\"activeSessions\":" + sessions.size() + "}}";
+        sendJson(ex, 200, body);
+    }
+
+    private static void handleReset(HttpExchange ex) throws IOException {
+        if (!"POST".equalsIgnoreCase(ex.getRequestMethod()) || !CONTROL_TOKEN.equals(ex.getRequestHeaders().getFirst("X-Testbed-Control"))) {
+            sendJson(ex, 404, "{\"error\":\"not found\"}"); return;
+        }
+        hits.clear(); sessions.clear(); startRequests.set(0); sessionsCreated.set(0); loginRequests.set(0); successfulLogins.set(0);
+        failedLogins.set(0); invalidClientIds.set(0); validSessionRequests.set(0); missingSessionRequests.set(0); invalidSessionRequests.set(0);
+        sendJson(ex, 200, "{\"reset\":true,\"application\":\"mock-1c\"}");
+    }
+
     private static void handleRoot(HttpExchange ex) throws IOException {
         log(ex);
         sendHtml(ex, 200,
@@ -240,17 +307,20 @@ public class Mock1CServer {
     private static Session requireSession(HttpExchange ex) throws IOException {
         String sid = ex.getRequestHeaders().getFirst("vrs-session");
         if (sid == null || sid.isBlank()) {
+            missingSessionRequests.incrementAndGet();
             ex.getResponseHeaders().set("WWW-Authenticate", "1C-vrs-session");
             sendJson(ex, 401, "{\"error\":\"missing vrs-session\"}");
             return null;
         }
         Session session = sessions.get(sid);
         if (session == null || !session.authenticated) {
+            invalidSessionRequests.incrementAndGet();
             ex.getResponseHeaders().set("WWW-Authenticate", "1C-vrs-session");
             sendJson(ex, 401, "{\"error\":\"invalid or expired vrs-session\"}");
             return null;
         }
         session.lastSeen = Instant.now();
+        validSessionRequests.incrementAndGet();
         return session;
     }
 

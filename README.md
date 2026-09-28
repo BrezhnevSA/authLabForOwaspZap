@@ -1,8 +1,8 @@
-# OWASP ZAP Authentication + Discovery Lab v7
+# OWASP ZAP Authentication + Discovery Lab v10
 
 A local authentication testbed for comparing OWASP ZAP authentication/session mechanisms against deliberately different real-world login flows.
 
-This version keeps all previous authentication scenarios, the Kerberos/SPNEGO lab, HTTP Sender script-auth fixtures and mock 1C flow, and adds six deterministic discovery regression applications on ports 8705-8710 plus the complex React authentication/discovery fixture on port 8711.
+This version keeps all previous authentication and discovery scenarios and adds a unified per-application coverage/authentication diagnostics API across ports 8101-8712. The complex React authentication/discovery fixture remains on 8711, and 8712 adds a real mutual-TLS client-certificate target.
 
 ## Credentials and fixed test secrets
 
@@ -27,6 +27,8 @@ All host-published ports bind to `127.0.0.1`. For the hostname-sensitive SSO cas
 docker compose up --build -d
 ./smoke.sh
 ./smoke-discovery.sh
+./smoke-coverage.sh
+./smoke-client-cert.sh
 ```
 
 Kerberos is intentionally behind a profile because it starts a KDC and builds extra system packages:
@@ -137,8 +139,9 @@ For the 1C mock use Docker target `http://mock-1c:8704`. The protected cross-pat
 | 8709 | bft-regression-spa | composite BFT-like SPA: hash routing, custom menu elements, runtime URLs, cross-path APIs and nested action |
 | 8710 | scope-noise | target intentionally loads resources from separate Docker DNS aliases so out-of-scope crawler pollution can be measured |
 | 8711 | complex-react-auth | ordinary-looking React login that actually submits JSON, stores `access_token` in localStorage, requires Bearer headers, and uses only DIV-based application navigation |
+| 8712 | client-cert-auth | HTTPS mutual TLS target that rejects the TLS handshake unless ZAP presents the supplied PFX/P12 client certificate |
 
-Every discovery fixture, including `complex-react-auth`, has an independent `GET /__testbed/coverage` counter and `GET /__testbed/expected`. The reset endpoint is intentionally unlinked and omitted from OpenAPI; use `./discovery-coverage.sh reset`. See [`DISCOVERY_TESTS.md`](DISCOVERY_TESTS.md).
+Every fixture now has independent `GET /__testbed/coverage` and `GET /__testbed/expected` diagnostics. The reset endpoint is intentionally unlinked and requires the private control header. Use `./testbed-coverage.sh reset all` before a regression run and `./testbed-coverage.sh summary all` afterwards. See [`COVERAGE_TESTS.md`](COVERAGE_TESTS.md) and [`DISCOVERY_TESTS.md`](DISCOVERY_TESTS.md).
 
 ## v2 baseline observed in ZAP
 
@@ -181,6 +184,7 @@ The lab does not force an expected answer; the point is to record what your ZAP 
 | 8703 script-token-check | HTTP Sender script `token-lab/03-token-refresh-timeout-and-check.js`; periodic server-side token check + refresh |
 | 8704 mock-1c | HTTP Sender script `existing-apps/09-1c-vrs-session.js` |
 | 8705-8710 discovery | Spider + AJAX Spider now; add Client Spider to the same coverage matrix when the runner supports it |
+| 8712 client-cert-auth | Client certificate upload (`certificate`, `clientCertificatePassword`, `clientCertificateIndex`) |
 
 ## Common verification
 
@@ -321,3 +325,51 @@ Coverage and authentication counters are available at `GET /__testbed/coverage`;
 
 
 HTTP Sender host ports: `8701` (JWT `exp` parsing), `8702` (proactive timeout refresh), `8703` (timeout + server token check), `8704` (1C-style `vrs-session`). Discovery regression ports are `8705`-`8710`; see `DISCOVERY_TESTS.md`.
+
+
+
+### Mutual TLS client certificate (8712)
+
+`client-cert-auth` is a real HTTPS mutual-TLS target. The server uses `requestCert=true` and `rejectUnauthorized=true`, so a request without a client certificate signed by the test CA fails during the TLS handshake before any HTTP endpoint is reached.
+
+DAST target:
+
+```text
+https://client-cert-auth:8712/
+```
+
+Bundled test certificate:
+
+```text
+client-cert-auth/certs/client-auth.pfx
+certificate index: 0
+```
+
+The certificate is a separate scan dimension from application authentication. In the runner it is controlled by `CERT_MODE`, not `AUTH_MODE`. For this certificate-only fixture use:
+
+```bash
+AUTH_MODE=none CERT_MODE=certificate ONLY=client-cert-auth ...
+```
+
+`AUTH_MODE=all` does not enable client certificates. The scan helper sends the PFX using the multipart fields:
+
+```text
+certificate=@client-auth.pfx
+clientCertificatePassword=<test-certificate-password>
+clientCertificateIndex=0
+```
+
+Because the target port cannot expose an unauthenticated reset API without weakening the mTLS test, coverage/reset is hosted separately on the loopback-only control port:
+
+```text
+http://127.0.0.1:9712/__testbed/expected
+http://127.0.0.1:9712/__testbed/coverage
+POST http://127.0.0.1:9712/__testbed/control/reset
+```
+
+See [`CLIENT_CERTIFICATE_TEST.md`](CLIENT_CERTIFICATE_TEST.md). If your ZAP runtime validates target server certificates, trust `client-cert-auth/certs/testbed-ca.crt` in that runtime; this is separate from presenting the client PFX.
+
+
+## Unified coverage diagnostics (v10)
+
+All applications from 8101 through 8712 expose the same diagnostic contract. For 8712 the diagnostic API is deliberately moved to host port 9712 because the scan target itself enforces mTLS at the TLS handshake layer. Simple protocol/form fixtures use minimal discovery coverage plus authentication counters; dynamic/browser/SSO/script-auth fixtures expose fuller business or flow coverage. `checkAuth` endpoints are not counted as business discovery. See `COVERAGE_TESTS.md`.

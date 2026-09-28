@@ -149,13 +149,19 @@ app.get('/__testbed/expected', (_req, res) => {
 app.get('/__testbed/coverage', (_req, res) => {
   const visited = expected.filter((item) => state.hits.has(item.path));
   const missing = expected.filter((item) => !state.hits.has(item.path));
-  res.json({
-    app: 'complex-react-auth',
+  const discovery = {
     expected: expected.length,
     visited: visited.length,
     coveragePercent: expected.length ? Number(((visited.length / expected.length) * 100).toFixed(2)) : 100,
     visitedEndpoints: visited.map((item) => ({ ...item, ...state.hits.get(item.path) })),
     missingEndpoints: missing,
+  };
+  res.json({
+    application: 'complex-react-auth',
+    app: 'complex-react-auth',
+    discovery,
+    // Backward-compatible top-level fields.
+    ...discovery,
     authentication: { ...state.auth, activeTokens: state.tokens.size },
     resetAt: state.resetAt,
   });

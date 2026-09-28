@@ -273,6 +273,17 @@ services:
       - COMPLEX_AUTH_PASSWORD=ZapTest123!
     ports: ["127.0.0.1:8711:8711"]
 
+  client-cert-auth:
+    build: ./client-cert-auth
+    environment:
+      - PORT=8712
+      - CONTROL_PORT=9712
+      - TESTBED_CONTROL_TOKEN=zap-testbed-reset-v1
+    ports:
+      - "127.0.0.1:8712:8712"
+      - "127.0.0.1:9712:9712"
+
+
 networks:
   default:
     name: zap-auth-testbed

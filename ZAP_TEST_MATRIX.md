@@ -1,4 +1,4 @@
-# ZAP authentication test matrix — v4
+# ZAP authentication + coverage test matrix — v8
 
 ## Shared credentials
 
@@ -207,3 +207,26 @@ Use `GET /__testbed/coverage` after each run. Reset with `discovery-coverage.sh 
 | Nested DIV dropdown traversal | Measure `/api/contracts` and `/api/archive` coverage |
 
 The fixture is intentionally named `complex-react-auth`; it does not depend on any customer-specific product name.
+
+
+## Unified coverage API (v10)
+
+Every fixture has:
+
+```text
+GET  /__testbed/expected
+GET  /__testbed/coverage
+POST /__testbed/control/reset
+X-Testbed-Control: zap-testbed-reset-v1
+```
+
+Use `testbed-coverage.sh summary all` to compare discovery coverage and authentication counters after a run. The poll/check endpoints are deliberately excluded from discovery coverage.
+
+
+## Mutual TLS client certificate (8712)
+
+| Port | Scenario | Target | Required scan fields | Coverage/control |
+|---:|---|---|---|---|
+| 8712 | client-cert-auth | `https://client-cert-auth:8712/` | `certificate` (.pfx/.p12), `clientCertificatePassword`, `clientCertificateIndex=0` | `http://127.0.0.1:9712/__testbed/coverage` |
+
+The HTTPS listener performs real TLS client-certificate verification. Without the certificate, the TLS handshake is rejected. The separate 9712 control listener is intentionally not part of the target origin.
