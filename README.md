@@ -147,6 +147,16 @@ For the 1C mock use Docker target `http://mock-1c:8704`. The protected cross-pat
 |---:|---|---|
 | 8713 | vuln-app | Spring Boot application deployed as `/app` on Tomcat; intentionally vulnerable endpoints for ZAP active/passive scans, OpenAPI, XSS, injections, XXE, and hidden-file fixtures |
 
+### Real TOTP-based two-factor authentication
+
+| Port | Target | Login |
+|---:|---|---|
+| 8714 | totp-2fa | `http://127.0.0.1:8714/login` |
+
+Unlike the older `otp-challenge` fixture (`123456` fixed), `totp-2fa` requires a valid time-based 6-digit TOTP after the password. Password: `zapuser` / `ZapTest123!`; test seed: `JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP`. After password login, `/2fa/setup` provides the enrollment URI. Generate the current code with `node totp-2fa/totp.js`. ZAP logged-in test: `GET /api/whoami` returns 200 only after both factors.
+
+Start: `docker compose up --build -d totp-2fa`; run `./smoke-totp-2fa.sh` to test both steps. See [`totp-2fa/README.md`](totp-2fa/README.md) for the full flow and ZAP tips.
+
 Local scan entry point: `http://127.0.0.1:8713/app/`. OpenAPI: `http://127.0.0.1:8713/app/v3/api-docs`, Swagger UI: `http://127.0.0.1:8713/app/swagger-ui/index.html`.
 
 Use `docker compose up --build -d vuln-app` to start just this target, or `docker compose up --build -d` with the other targets. Unlike the authentication/discovery fixtures, `vuln-app` uses its own reset endpoint `GET /app/clearData` and does **not** expose `/__testbed/coverage` or `/__testbed/expected`. Its full endpoint reference is in [`vuln-app/README.md`](vuln-app/README.md).

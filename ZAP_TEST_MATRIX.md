@@ -31,6 +31,7 @@ Kerberos realm = ZAP.TEST
 | 8304 | enter-submit | `http://127.0.0.1:8304/login` | `/api/whoami` |
 | 8305 | iframe-login | `http://127.0.0.1:8305/login` | `/api/whoami` |
 | 8306 | otp-challenge | `http://127.0.0.1:8306/login` | `/api/whoami` |
+| 8714 | totp-2fa (RFC 6238) | `http://127.0.0.1:8714/login` | `/api/whoami` (401 before 2FA, 200 after) |
 | 8401 | HTTP Basic | `http://127.0.0.1:8401/` | `/api/whoami` |
 | 8402 | HTTP Digest | `http://127.0.0.1:8402/` | `/api/whoami` |
 | 8403 | Bearer token | `http://127.0.0.1:8403/` | `/api/whoami` |
@@ -50,6 +51,7 @@ Kerberos realm = ZAP.TEST
 Use `yes/no/partial` and add notes when ZAP logs in but scanner requests are not authenticated.
 
 | Scenario | Form | JSON | Browser auto | HTTP/NTLM | Header/Replacer | Client/Auth script | Notes |
+| totp-2fa | No (1-step only) | No | Depends on TOTP entry | No | No | Multi-step script | Current TOTP required after password; see `totp-2fa/README.md` |
 |---|---|---|---|---|---|---|---|
 | spring-form | | | | | | | |
 | django-form | | | | | | | |

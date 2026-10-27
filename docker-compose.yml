@@ -288,6 +288,14 @@ services:
     build: ./vuln-app
     ports: ["127.0.0.1:8713:8080"]
 
+  totp-2fa:
+    build: ./totp-2fa
+    environment:
+      - TOTP_USERNAME=zapuser
+      - TOTP_PASSWORD=ZapTest123!
+      - TOTP_SECRET=${TOTP_SECRET:-JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP}
+    ports: ["127.0.0.1:8714:3000"]
+
 networks:
   default:
     name: zap-auth-testbed

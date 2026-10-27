@@ -30,6 +30,8 @@ check_code bft-regression-spa http://127.0.0.1:8709/app/ 200
 check_code scope-noise http://127.0.0.1:8710/ 200
 check_code complex-react-auth http://127.0.0.1:8711/app/ 200
 check_code vuln-app http://127.0.0.1:8713/ 200
+check_code totp-2fa http://127.0.0.1:8714/login 200
+check_code totp-2fa-anonymous http://127.0.0.1:8714/api/whoami 401
 
 # HTTP/header auth should reject anonymous requests.
 for p in 8401 8402 8403 8404 8405 8406 8601; do check_code "anonymous-$p" "http://127.0.0.1:$p/api/whoami" 401; done

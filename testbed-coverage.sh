@@ -48,6 +48,7 @@ apps=$(cat <<'EOF'
 8710|scope-noise
 8711|complex-react-auth
 8712|client-cert-auth|http://127.0.0.1:9712
+8714|totp-2fa
 EOF
 )
 
