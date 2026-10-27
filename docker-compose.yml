@@ -284,6 +284,10 @@ services:
       - "127.0.0.1:9712:9712"
 
 
+  vuln-app:
+    build: ./vuln-app
+    ports: ["127.0.0.1:8713:8080"]
+
 networks:
   default:
     name: zap-auth-testbed

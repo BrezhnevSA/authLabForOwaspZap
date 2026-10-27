@@ -1,0 +1,2121 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "https://zap-lab-vuln-app.ast.rt-solar.ru/app",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/vulnApp/insecureMethod": {
+      "put": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "insecureMethod",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "insecureMethod_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "trace": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "insecureMethod_2",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/spring4shell": {
+      "get": {
+        "tags": [
+          "framework-rce-alerts-controller"
+        ],
+        "operationId": "spring4Shell",
+        "parameters": [
+          {
+            "name": "params",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "framework-rce-alerts-controller"
+        ],
+        "operationId": "spring4Shell_1",
+        "parameters": [
+          {
+            "name": "params",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/cors": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "cors",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "cors_1",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/xxe": {
+      "post": {
+        "tags": [
+          "xml-injection-alerts-controller"
+        ],
+        "operationId": "xxe",
+        "requestBody": {
+          "content": {
+            "application/xml": {
+              "schema": {
+                "type": "string",
+                "example": "<?xml version=\"1.0\"?><foo>baseline</foo>"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/soap": {
+      "get": {
+        "tags": [
+          "soap-alerts-controller"
+        ],
+        "operationId": "wsdl",
+        "parameters": [
+          {
+            "name": "baseUrl",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "soap-alerts-controller"
+        ],
+        "operationId": "soap",
+        "parameters": [
+          {
+            "name": "SOAPAction",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/react2shell": {
+      "post": {
+        "tags": [
+          "framework-rce-alerts-controller"
+        ],
+        "operationId": "react2Shell",
+        "parameters": [
+          {
+            "name": "Next-Action",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Next-Router-State-Tree",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/issue": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "getIssues",
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "addIssue",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event": {
+      "get": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "getEvents",
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "addEvent",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment": {
+      "get": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "getComments",
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "addComment",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/xsltInjection": {
+      "get": {
+        "tags": [
+          "xml-injection-alerts-controller"
+        ],
+        "operationId": "xsltInjection",
+        "parameters": [
+          {
+            "name": "template",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/xpathInjection": {
+      "get": {
+        "tags": [
+          "xml-injection-alerts-controller"
+        ],
+        "operationId": "xpathInjection",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trace.axd": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "traceAxdLeak",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/trace.axd": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "traceAxdLeak_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/ssrf": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "ssrf",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/sqlInjectionSqLite": {
+      "get": {
+        "tags": [
+          "database-injection-alerts-controller"
+        ],
+        "operationId": "sqlInjectionSqLite",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/sqlInjectionSqLiteTimeBased": {
+      "get": {
+        "tags": [
+          "database-injection-alerts-controller"
+        ],
+        "operationId": "sqlInjectionSqLiteTimeBased",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/sqlInjectionSqLiteError": {
+      "get": {
+        "tags": [
+          "database-injection-alerts-controller"
+        ],
+        "operationId": "sqlInjectionSqLiteError",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/sqlInjectionPostgres": {
+      "get": {
+        "tags": [
+          "database-injection-alerts-controller"
+        ],
+        "operationId": "sqlInjectionPostgres",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/sqlInjectionOracleTimeBased": {
+      "get": {
+        "tags": [
+          "database-injection-alerts-controller"
+        ],
+        "operationId": "sqlInjectionOracleTimeBased",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/sqlInjectionMySqlTimeBased": {
+      "get": {
+        "tags": [
+          "database-injection-alerts-controller"
+        ],
+        "operationId": "sqlInjectionMySqlTimeBased",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/sqlInjectionMsSqlTimeBased": {
+      "get": {
+        "tags": [
+          "database-injection-alerts-controller"
+        ],
+        "operationId": "sqlInjectionMsSqlTimeBased",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/sqlInjectionHypersonicTimeBased": {
+      "get": {
+        "tags": [
+          "database-injection-alerts-controller"
+        ],
+        "operationId": "sqlInjectionHypersonicTimeBased",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/sqlInjectionGeneric": {
+      "get": {
+        "tags": [
+          "database-injection-alerts-controller"
+        ],
+        "operationId": "sqlInjectionGeneric",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/serverSideTemplateInjection": {
+      "get": {
+        "tags": [
+          "code-execution-alerts-controller"
+        ],
+        "operationId": "serverSideTemplateInjection",
+        "parameters": [
+          {
+            "name": "template",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/serverSideCodeInjection": {
+      "get": {
+        "tags": [
+          "code-execution-alerts-controller"
+        ],
+        "operationId": "serverSideCodeInjection",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/timestampDisclosure": {
+      "get": {
+        "tags": [
+          "passive-header-alerts-controller"
+        ],
+        "operationId": "timestampDisclosure",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/serverHeaderLeak": {
+      "get": {
+        "tags": [
+          "passive-header-alerts-controller"
+        ],
+        "operationId": "serverHeaderLeak",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/missingSecurityHeaders": {
+      "get": {
+        "tags": [
+          "passive-header-alerts-controller"
+        ],
+        "operationId": "missingSecurityHeaders",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/hstsOnHttp": {
+      "get": {
+        "tags": [
+          "passive-header-alerts-controller"
+        ],
+        "operationId": "hstsOnHttp",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/errorWithoutNosniff": {
+      "get": {
+        "tags": [
+          "passive-header-alerts-controller"
+        ],
+        "operationId": "errorWithoutNosniff",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/cookieWithoutSameSite": {
+      "get": {
+        "tags": [
+          "passive-header-alerts-controller"
+        ],
+        "operationId": "cookieWithoutSameSite",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/cookieSameSiteNone": {
+      "get": {
+        "tags": [
+          "passive-header-alerts-controller"
+        ],
+        "operationId": "cookieSameSiteNone",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/cookieInvalidSameSite": {
+      "get": {
+        "tags": [
+          "passive-header-alerts-controller"
+        ],
+        "operationId": "cookieInvalidSameSite",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/parameterTampering": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "parameterTampering",
+        "parameters": [
+          {
+            "name": "price",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/paddingOracle": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "paddingOracle",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "ffffffffffffffffffffffffffffff10"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/osCommandInjection": {
+      "get": {
+        "tags": [
+          "code-execution-alerts-controller"
+        ],
+        "operationId": "osCommandInjection",
+        "parameters": [
+          {
+            "name": "cmd",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/osCommandInjectionTimeBased": {
+      "get": {
+        "tags": [
+          "code-execution-alerts-controller"
+        ],
+        "operationId": "osCommandInjectionTimeBased",
+        "parameters": [
+          {
+            "name": "cmd",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/noSqlInjectionMongo": {
+      "get": {
+        "tags": [
+          "directory-and-no-sql-alerts-controller"
+        ],
+        "operationId": "noSqlInjectionMongo",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "baseline",
+              "example": "baseline"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/ldapInjection": {
+      "get": {
+        "tags": [
+          "directory-and-no-sql-alerts-controller"
+        ],
+        "operationId": "ldapInjection",
+        "parameters": [
+          {
+            "name": "user",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/formatString": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "formatString",
+        "parameters": [
+          {
+            "name": "input",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/externalRedirect": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "externalRedirect",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/vulnApp/expressionLanguageInjection": {
+      "get": {
+        "tags": [
+          "code-execution-alerts-controller"
+        ],
+        "operationId": "expressionLanguageInjection",
+        "parameters": [
+          {
+            "name": "expr",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/elmah.axd": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "elmahLeak",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/elmah.axd": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "elmahLeak_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/domXss": {
+      "get": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "domXss",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/cssw": {
+      "get": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "csswVuln",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/cssw/html": {
+      "get": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "csswVulnHtml",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "baseline"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/bufferOverflow": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "bufferOverflow",
+        "parameters": [
+          {
+            "name": "input",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/actuator/heapdump": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "actuatorHeapdump",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/heapdump": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "actuatorHeapdump_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/actuator/env": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "actuatorEnv",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/env": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "actuatorEnv_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/WEB-INF/web.xml": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "webInfLeak",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/WEB-INF/web.xml": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "webInfLeak_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.htaccess": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "htaccessLeak",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/.htaccess": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "htaccessLeak_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/.git/config": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "gitConfigLeak",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.git/config": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "gitConfigLeak_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/.env": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "envLeak",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/.env": {
+      "get": {
+        "tags": [
+          "resource-disclosure-alerts-controller"
+        ],
+        "operationId": "envLeak_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/latest/meta-data/": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "awsMetadata",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/latest/meta-data": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "awsMetadata_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/computeMetadata/v1": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "gcpMetadata",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/computeMetadata/v1/": {
+      "get": {
+        "tags": [
+          "web-misconfiguration-alerts-controller"
+        ],
+        "operationId": "gcpMetadata_1",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/{id}": {
+      "get": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "getComment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/html": {
+      "get": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "getCommentsHtml",
+        "responses": {
+          "default": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/javaSerializedObject": {
+      "get": {
+        "tags": [
+          "required-coverage-alerts-controller"
+        ],
+        "operationId": "javaSerializedObject",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/x-java-serialized-object": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/debugErrorMessage": {
+      "get": {
+        "tags": [
+          "required-coverage-alerts-controller"
+        ],
+        "operationId": "debugErrorMessage",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/sensitiveUrl": {
+      "get": {
+        "tags": [
+          "required-coverage-alerts-controller"
+        ],
+        "operationId": "sensitiveUrl",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "qa.user@example.com"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/passive/suspiciousComments": {
+      "get": {
+        "tags": [
+          "required-coverage-alerts-controller"
+        ],
+        "operationId": "suspiciousComments",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/prototypePollution": {
+      "get": {
+        "tags": [
+          "required-coverage-alerts-controller"
+        ],
+        "operationId": "prototypePollution",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "__proto__"
+            }
+          },
+          {
+            "name": "prop",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "headers"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "ptk-polluted"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/prototypePollutionEcho": {
+      "get": {
+        "tags": [
+          "required-coverage-alerts-controller"
+        ],
+        "operationId": "prototypePollutionEcho",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnApp/reflectedXssJson": {
+      "get": {
+        "tags": [
+          "xss-alerts-controller"
+        ],
+        "operationId": "reflectedXssJson",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "baseline"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Response": {
+        "type": "object",
+        "properties": {
+          "test": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

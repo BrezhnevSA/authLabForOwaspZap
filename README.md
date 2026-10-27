@@ -141,7 +141,17 @@ For the 1C mock use Docker target `http://mock-1c:8704`. The protected cross-pat
 | 8711 | complex-react-auth | ordinary-looking React login that actually submits JSON, stores `access_token` in localStorage, requires Bearer headers, and uses only DIV-based application navigation |
 | 8712 | client-cert-auth | HTTPS mutual TLS target that rejects the TLS handshake unless ZAP presents the supplied PFX/P12 client certificate |
 
-Every fixture now has independent `GET /__testbed/coverage` and `GET /__testbed/expected` diagnostics. The reset endpoint is intentionally unlinked and requires the private control header. Use `./testbed-coverage.sh reset all` before a regression run and `./testbed-coverage.sh summary all` afterwards. See [`COVERAGE_TESTS.md`](COVERAGE_TESTS.md) and [`DISCOVERY_TESTS.md`](DISCOVERY_TESTS.md).
+### Vulnerability scan target
+
+| Port | Target | Characteristic |
+|---:|---|---|
+| 8713 | vuln-app | Spring Boot application deployed as `/app` on Tomcat; intentionally vulnerable endpoints for ZAP active/passive scans, OpenAPI, XSS, injections, XXE, and hidden-file fixtures |
+
+Local scan entry point: `http://127.0.0.1:8713/app/`. OpenAPI: `http://127.0.0.1:8713/app/v3/api-docs`, Swagger UI: `http://127.0.0.1:8713/app/swagger-ui/index.html`.
+
+Use `docker compose up --build -d vuln-app` to start just this target, or `docker compose up --build -d` with the other targets. Unlike the authentication/discovery fixtures, `vuln-app` uses its own reset endpoint `GET /app/clearData` and does **not** expose `/__testbed/coverage` or `/__testbed/expected`. Its full endpoint reference is in [`vuln-app/README.md`](vuln-app/README.md).
+
+Every authentication/discovery fixture has independent `GET /__testbed/coverage` and `GET /__testbed/expected` diagnostics. The reset endpoint is intentionally unlinked and requires the private control header. Use `./testbed-coverage.sh reset all` before a regression run and `./testbed-coverage.sh summary all` afterwards. See [`COVERAGE_TESTS.md`](COVERAGE_TESTS.md) and [`DISCOVERY_TESTS.md`](DISCOVERY_TESTS.md).
 
 ## v2 baseline observed in ZAP
 
